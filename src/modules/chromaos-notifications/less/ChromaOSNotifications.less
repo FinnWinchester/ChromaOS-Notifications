@@ -1,0 +1,48 @@
+@chromaos-notification-border-width: 1px;
+@chromaos-notification-padding: 3px;
+@chromaos-notification-height: 125px;
+@chromaos-notification-width: 325px;
+@chromaos-notification-border-radius: 8px;
+
+.chromaos-notification-wrapper {
+	width: @chromaos-notification-width;
+	height: @chromaos-notification-height;
+	background-color: @flat-ui-silver;
+	border-radius: @chromaos-notification-border-radius;
+	position: absolute;
+	// right: 15px;
+	right: ~"calc(-1 * @{chromaos-notification-width} - 25px)";
+	top: 15px;
+	box-shadow: 0 3px 5px 0 #5d5d5d;
+	border: 1px solid @flat-ui-black-hole;
+}
+
+.chromaos-notification {
+	height: 100%;
+	padding: 3px;
+
+	&-content {
+		height: 100%;
+
+		&-icon {
+			height: 100%;
+			width: 25%;
+			float: left;
+			font-size: 50px;
+			text-align: center;
+			line-height: ~"calc(@{chromaos-notification-height} - @{chromaos-notification-border-width}*2 - @{chromaos-notification-padding}*2)";
+		}
+
+		&-body {
+			height: 100%;
+			width: 75%;
+			overflow-y: auto;
+			float: left;
+			font-size: 16px;
+
+			&-title {
+				font-size: 20px;
+			}
+		}
+	}
+}
