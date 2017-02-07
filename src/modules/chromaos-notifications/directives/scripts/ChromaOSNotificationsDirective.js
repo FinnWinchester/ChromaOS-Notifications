@@ -32,7 +32,7 @@
       $rootScope.$on('chromaos-notifications.notification.relocate', function(e, args) {
         if (ChromaOSNotificationsService.getParsedNId($scope.nId) >= args.from) {
           $($element).animate({
-            top: '-=130px'
+            top: '-=105px'
           }, delay, easing);
         }
       });
@@ -47,7 +47,7 @@
 
         if (timeout) startTimeout(delay + timeout);
 
-        $($element).css('top', (130 * openedNotifications + 10) + 'px');
+        $($element).css('top', (105 * openedNotifications + 10) + 'px');
         $($element).animate({
           right: '+=365px'
         }, delay, easing);
@@ -77,6 +77,7 @@
       scope: {
         notificationTitle: '@title',
         notificationText: '@text',
+        notificationStyle: '@style',
         notificationIcon: '@icon'
       },
       templateUrl: 'modules/chromaos-notifications/directives/views/ChromaOSNotificationsDirectiveTemplate.html',

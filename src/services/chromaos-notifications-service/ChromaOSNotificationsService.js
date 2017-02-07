@@ -3,7 +3,7 @@
 
   function ChromaOSNotificationsService($, $q, $rootScope, $compile) {
 
-    var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__"></div>';
+    var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__" style="__notification_style__"></div>';
     var openedNotifications = 0;
     var iter = 0;
 
@@ -11,6 +11,7 @@
       var prepared = notificationWrapper
         .replace('__notification_title__', notification.title)
         .replace('__notification_text__', notification.text)
+        .replace('__notification_style__', notification.style)
         .replace('__notification_icon__', notification.icon);
       return prepared;
     };

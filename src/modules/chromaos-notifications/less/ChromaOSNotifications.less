@@ -1,23 +1,21 @@
 @chromaos-notification-border-width: 1px;
 @chromaos-notification-padding: 3px;
-@chromaos-notification-height: 125px;
+@chromaos-notification-height: 100px;
 @chromaos-notification-width: 325px;
 @chromaos-notification-border-radius: 8px;
 
 .chromaos-notification-wrapper {
 	width: @chromaos-notification-width;
 	height: @chromaos-notification-height;
-	background-color: @flat-ui-silver;
 	border-radius: @chromaos-notification-border-radius;
 	position: absolute;
-	// right: 15px;
 	right: ~"calc(-1 * @{chromaos-notification-width} - 25px)";
 	top: 15px;
-	box-shadow: 0 3px 5px 0 #5d5d5d;
-	border: 1px solid @flat-ui-black-hole;
 }
 
 .chromaos-notification {
+	opacity: 0.65;
+	border-radius: @chromaos-notification-border-radius;
 	height: 100%;
 	padding: 3px;
 
@@ -48,5 +46,20 @@
 
 	&:hover {
 		cursor: pointer;
+		opacity: 0.75;
+	}
+
+	&-neutral {
+		background-color: @flat-ui-silver;
+		box-shadow: 0 3px 5px 0 #5d5d5d;
+		border: 1px solid @flat-ui-black-hole;
+		color: @flat-ui-black-hole;
+	}
+
+	&-success {
+		background-color: @bootstrap-success;
+		box-shadow: 0 3px 5px 0 #5d5d5d;
+		border: 1px solid @flat-ui-black-hole;
+		color: white;
 	}
 }

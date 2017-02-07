@@ -2,8 +2,7 @@ angular.module('ChromaOSNotifications.Templates', ['modules/chromaos-notificatio
 
 angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotificationsDirectiveTemplate.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("modules/chromaos-notifications/directives/views/ChromaOSNotificationsDirectiveTemplate.html",
-    "<div class=\"chromaos-notification\">\n" +
-    "\n" +
+    "<div class=\"chromaos-notification chromaos-notification-{{notificationStyle}}\">\n" +
     "  <div class=\"chromaos-notification-content\">\n" +
     "    <div class=\"chromaos-notification-content-icon\">\n" +
     "      <i class=\"{{notificationIcon}}\"></i>\n" +
@@ -40,7 +39,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
 
   function ChromaOSNotificationsService($, $q, $rootScope, $compile) {
 
-    var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__"></div>';
+    var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__" style="__notification_style__"></div>';
     var openedNotifications = 0;
     var iter = 0;
 
@@ -48,6 +47,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       var prepared = notificationWrapper
         .replace('__notification_title__', notification.title)
         .replace('__notification_text__', notification.text)
+        .replace('__notification_style__', notification.style)
         .replace('__notification_icon__', notification.icon);
       return prepared;
     };
@@ -160,7 +160,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       $rootScope.$on('chromaos-notifications.notification.relocate', function(e, args) {
         if (ChromaOSNotificationsService.getParsedNId($scope.nId) >= args.from) {
           $($element).animate({
-            top: '-=130px'
+            top: '-=105px'
           }, delay, easing);
         }
       });
@@ -175,7 +175,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
 
         if (timeout) startTimeout(delay + timeout);
 
-        $($element).css('top', (130 * openedNotifications + 10) + 'px');
+        $($element).css('top', (105 * openedNotifications + 10) + 'px');
         $($element).animate({
           right: '+=365px'
         }, delay, easing);
@@ -205,6 +205,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       scope: {
         notificationTitle: '@title',
         notificationText: '@text',
+        notificationStyle: '@style',
         notificationIcon: '@icon'
       },
       templateUrl: 'modules/chromaos-notifications/directives/views/ChromaOSNotificationsDirectiveTemplate.html',
