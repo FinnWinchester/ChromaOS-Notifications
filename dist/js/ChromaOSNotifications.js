@@ -41,6 +41,8 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
   function ChromaOSNotificationsService($, $q, $rootScope, $compile) {
 
     var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__"></div>';
+    var openedNotifications = 0;
+    var iter = 0;
 
     var prepareNotification = function(notification) {
       var prepared = notificationWrapper
@@ -58,8 +60,9 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
           $('body').append(a[0]);
           var finalArgs = {
             html: a[0],
+            openedNotifications: openedNotifications,
             delay: notification.delay ? notification.delay : 500,
-            timeout: notification.timeout ? notification.timeout : 2000,
+            timeout: notification.timeout ? notification.timeout : notification.timeout === false ? false : 2000,
             easing: notification.easing ? notification.easing : 'easeOutExpo'
           };
           if (args) {
@@ -71,8 +74,33 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       });
     }
 
+    var getParsedNId = function(nId) {
+      return +nId.replace('ch_n_', '');
+    };
+
+    function closed(nId) {
+      openedNotifications--;
+      if (openedNotifications < 0) openedNotifications = 0;
+      $rootScope.$broadcast('chromaos-notifications.notification.relocate', {
+        from: getParsedNId(nId)
+      });
+    }
+
+    function opened() {
+      openedNotifications++;
+      iter++;
+    }
+
+    function getIter() {
+      return iter;
+    }
+
     var factory = {
-      open: open
+      open: open,
+      opened: opened,
+      closed: closed,
+      getIter: getIter,
+      getParsedNId: getParsedNId
     };
 
     return factory;
@@ -101,20 +129,20 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
 ;(function(angular) {
   'use strict';
 
-  function ChromaOSNotificationsDirective($, $rootScope, ChromaOSNotificationsParameter, $timeout) {
+  function ChromaOSNotificationsDirective($, $rootScope, ChromaOSNotificationsService) {
 
     function $init($scope, $element, $controller) {
-      var delay, easing, timeout, timeoutId, remaining, start;
+      var delay, easing, timeout, timeoutId, remaining, start, openedNotifications, closeable = true;
 
       $element.addClass('chromaos-notification-wrapper');
-      if (!$scope.nId) {
-        $scope.nId = (Math.floor(Math.random() * 90000) + 10000);
-      }
+      $scope.nId = 'ch_n_' + ChromaOSNotificationsService.getIter();
+      $element.attr('data-n-id', $scope.nId);
 
       var close = function() {
         $($element).animate({
           right: '-=365px'
         }, delay, easing);
+        ChromaOSNotificationsService.closed($scope.nId);
       };
 
       var startTimeout = function(time) {
@@ -129,14 +157,25 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
         remaining -= new Date() - start;
       };
 
+      $rootScope.$on('chromaos-notifications.notification.relocate', function(e, args) {
+        if (ChromaOSNotificationsService.getParsedNId($scope.nId) >= args.from) {
+          $($element).animate({
+            top: '-=130px'
+          }, delay, easing);
+        }
+      });
+
       $scope.$on('chromaos-notifications.notification.opened', function(e, args) {
+        ChromaOSNotificationsService.opened();
         delay = args.delay;
         easing = args.easing;
         timeout = args.timeout;
+        openedNotifications = args.openedNotifications;
         remaining = args.delay + args.timeout;
 
-        startTimeout(delay + timeout);
+        if (timeout) startTimeout(delay + timeout);
 
+        $($element).css('top', (130 * openedNotifications + 10) + 'px');
         $($element).animate({
           right: '+=365px'
         }, delay, easing);
@@ -148,70 +187,17 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       });
 
       $($element).on('mouseleave', function() {
-        startTimeout(remaining);
+        if (timeout) startTimeout(remaining);
       });
 
       $($element).on('click', function() {
-        close();
+        if (closeable) {
+          closeable = false;
+          close();
+        }
       });
 
       $element.addClass('chromaos-notification-' + $scope.nId);
-      // $element.find('.chromaos-notification').attr('data-notifications-id', $scope.nId);
-      // $controller.$init($element.find('.chromaos-notifications'), $scope.commands);
-
-      $rootScope.$on('chromaos-notifications.username.set', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$changeUsername(args.username);
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.glue.set', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$changeGlue(args.glue);
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.environment.set', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$changeEnvironment(args.environment);
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.input.set', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$changeInput(args.input);
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.username.reset', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$resetUsername();
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.glue.reset', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$resetGlue();
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.environment.reset', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$resetEnvironment();
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.input.reset', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$resetInput();
-        }
-      });
-
-      $rootScope.$on('chromaos-notifications.all.reset', function(e, args) {
-        if (args.nId === $scope.nId) {
-          $controller.$resetAll();
-        }
-      });
     }
 
     var directive = {
@@ -219,8 +205,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       scope: {
         notificationTitle: '@title',
         notificationText: '@text',
-        notificationIcon: '@icon',
-        nId: '@'
+        notificationIcon: '@icon'
       },
       templateUrl: 'modules/chromaos-notifications/directives/views/ChromaOSNotificationsDirectiveTemplate.html',
       compile: function(element, attributes) {
@@ -240,7 +225,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
 
     .directive('chromaosNotification', ChromaOSNotificationsDirective);
 
-  ChromaOSNotificationsDirective.$inject = ['$', '$rootScope', '$timeout'];
+  ChromaOSNotificationsDirective.$inject = ['$', '$rootScope', 'ChromaOSNotificationsService'];
 })(window.angular);
 ;(function(angular) {
   'use strict';

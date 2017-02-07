@@ -4,6 +4,8 @@
   function ChromaOSNotificationsService($, $q, $rootScope, $compile) {
 
     var notificationWrapper = '<div chromaos-notification title="__notification_title__" text="__notification_text__" icon="__notification_icon__"></div>';
+    var openedNotifications = 0;
+    var iter = 0;
 
     var prepareNotification = function(notification) {
       var prepared = notificationWrapper
@@ -21,8 +23,9 @@
           $('body').append(a[0]);
           var finalArgs = {
             html: a[0],
+            openedNotifications: openedNotifications,
             delay: notification.delay ? notification.delay : 500,
-            timeout: notification.timeout ? notification.timeout : 2000,
+            timeout: notification.timeout ? notification.timeout : notification.timeout === false ? false : 2000,
             easing: notification.easing ? notification.easing : 'easeOutExpo'
           };
           if (args) {
@@ -34,8 +37,33 @@
       });
     }
 
+    var getParsedNId = function(nId) {
+      return +nId.replace('ch_n_', '');
+    };
+
+    function closed(nId) {
+      openedNotifications--;
+      if (openedNotifications < 0) openedNotifications = 0;
+      $rootScope.$broadcast('chromaos-notifications.notification.relocate', {
+        from: getParsedNId(nId)
+      });
+    }
+
+    function opened() {
+      openedNotifications++;
+      iter++;
+    }
+
+    function getIter() {
+      return iter;
+    }
+
     var factory = {
-      open: open
+      open: open,
+      opened: opened,
+      closed: closed,
+      getIter: getIter,
+      getParsedNId: getParsedNId
     };
 
     return factory;
