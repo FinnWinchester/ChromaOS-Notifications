@@ -141,7 +141,9 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
       var close = function() {
         $($element).animate({
           right: '-=365px'
-        }, delay, easing);
+        }, delay, easing, function() {
+          $($element).remove();
+        });
         ChromaOSNotificationsService.closed($scope.nId);
       };
 
