@@ -104,7 +104,7 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
   function ChromaOSNotificationsDirective($, $rootScope, ChromaOSNotificationsParameter, $timeout) {
 
     function $init($scope, $element, $controller) {
-      var delay, easing, timeout;
+      var delay, easing, timeout, timeoutId, remaining, start;
 
       $element.addClass('chromaos-notification-wrapper');
       if (!$scope.nId) {
@@ -117,18 +117,38 @@ angular.module("modules/chromaos-notifications/directives/views/ChromaOSNotifica
         }, delay, easing);
       };
 
+      var startTimeout = function(time) {
+        start = new Date();
+        timeoutId = setTimeout(function() {
+          close();
+        }, time);
+      };
+
+      var pauseTimeout = function() {
+        clearTimeout(timeoutId);
+        remaining -= new Date() - start;
+      };
+
       $scope.$on('chromaos-notifications.notification.opened', function(e, args) {
         delay = args.delay;
         easing = args.easing;
         timeout = args.timeout;
+        remaining = args.delay + args.timeout;
+
+        startTimeout(delay + timeout);
 
         $($element).animate({
           right: '+=365px'
         }, delay, easing);
+      });
 
-        setTimeout(function() {
-          close();
-        }, delay + timeout);
+      $($element).on('mouseenter', function() {
+        remaining -= new Date() - start;
+        pauseTimeout();
+      });
+
+      $($element).on('mouseleave', function() {
+        startTimeout(remaining);
       });
 
       $element.addClass('chromaos-notification-' + $scope.nId);
