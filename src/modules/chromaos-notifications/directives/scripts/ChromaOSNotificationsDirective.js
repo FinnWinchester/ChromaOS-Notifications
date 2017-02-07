@@ -51,6 +51,10 @@
         startTimeout(remaining);
       });
 
+      $($element).on('click', function() {
+        close();
+      });
+
       $element.addClass('chromaos-notification-' + $scope.nId);
       // $element.find('.chromaos-notification').attr('data-notifications-id', $scope.nId);
       // $controller.$init($element.find('.chromaos-notifications'), $scope.commands);

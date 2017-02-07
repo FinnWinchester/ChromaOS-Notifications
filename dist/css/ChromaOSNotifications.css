@@ -43,3 +43,6 @@ body {
 .chromaos-notification-content-body-title {
   font-size: 20px;
 }
+.chromaos-notification:hover {
+  cursor: pointer;
+}
